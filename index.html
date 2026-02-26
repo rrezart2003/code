@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>DentPrep</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #0a0a0f;
+  --card: #14141f;
+  --card-border: #1e1e2e;
+  --primary: #6c5ce7;
+  --primary-light: #a29bfe;
+  --success: #00b894;
+  --danger: #e17055;
+  --text: #f0f0f0;
+  --text-dim: #8888aa;
+  --text-muted: #555577;
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+.screen { display: none; min-height: 100vh; min-height: 100dvh; }
+.screen.active { display: flex; flex-direction: column; }
+
+/* LANG SELECT */
+#lang-select {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+}
+.lang-title { font-size: 36px; font-weight: 800; margin-bottom: 8px; background: linear-gradient(135deg, var(--primary-light), var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.lang-sub { color: var(--text-dim); margin-bottom: 40px; font-size: 14px; }
+.lang-buttons { display: flex; gap: 16px; justify-content: center; }
+.lang-btn {
+  background: var(--card);
+  border: 2px solid var(--card-border);
+  border-radius: 20px;
+  padding: 28px 32px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  min-width: 140px;
+}
+.lang-btn:active { transform: scale(0.96); }
+.lang-btn:hover { border-color: var(--primary); }
+.lang-btn .flag { font-size: 42px; margin-bottom: 10px; }
+.lang-btn .lname { color: var(--text); font-size: 16px; font-weight: 600; }
+
+/* HOME */
+#home { padding: 20px; padding-top: env(safe-area-inset-top, 20px); }
+.home-header { text-align: center; padding: 30px 0 20px; }
+.home-header h1 { font-size: 32px; font-weight: 800; background: linear-gradient(135deg, var(--primary-light), var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.home-header p { color: var(--text-dim); margin-top: 6px; font-size: 14px; }
+.home-top-bar { display: flex; justify-content: space-between; align-items: center; }
+.lang-switch { background: var(--card); border: 1px solid var(--card-border); border-radius: 10px; padding: 6px 12px; cursor: pointer; font-size: 14px; color: var(--text-dim); }
+.lang-switch:active { transform: scale(0.95); }
+.stats-bar { display: flex; gap: 10px; margin: 20px 0; }
+.stat-card { flex: 1; background: var(--card); border: 1px solid var(--card-border); border-radius: 14px; padding: 14px; text-align: center; }
+.stat-card .num { font-size: 24px; font-weight: 700; color: var(--primary-light); }
+.stat-card .label { font-size: 11px; color: var(--text-dim); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+.section-title { font-size: 18px; font-weight: 700; margin: 25px 0 12px; }
+.subject-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.subject-card { background: var(--card); border: 1px solid var(--card-border); border-radius: 16px; padding: 18px 14px; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
+.subject-card:active { transform: scale(0.97); }
+.subject-card .emoji { font-size: 28px; margin-bottom: 8px; }
+.subject-card .name { font-size: 14px; font-weight: 600; }
+.subject-card .count { font-size: 12px; color: var(--text-dim); margin-top: 3px; }
+.subject-card .progress-bar { position: absolute; bottom: 0; left: 0; height: 3px; background: var(--primary); border-radius: 0 3px 0 0; transition: width 0.3s; }
+
+/* TOPICS */
+#topics { padding: 20px; padding-top: env(safe-area-inset-top, 20px); }
+.back-btn { background: none; border: none; color: var(--primary-light); font-size: 16px; cursor: pointer; padding: 8px 0; display: flex; align-items: center; gap: 6px; }
+.topic-header { margin: 15px 0 20px; }
+.topic-header h2 { font-size: 24px; font-weight: 700; }
+.topic-header p { color: var(--text-dim); font-size: 13px; margin-top: 4px; }
+.topic-list { display: flex; flex-direction: column; gap: 10px; }
+.topic-card { background: var(--card); border: 1px solid var(--card-border); border-radius: 14px; padding: 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; }
+.topic-card:active { transform: scale(0.98); }
+.topic-card .left .name { font-weight: 600; font-size: 15px; }
+.topic-card .left .meta { color: var(--text-dim); font-size: 12px; margin-top: 3px; }
+.topic-card .right { display: flex; align-items: center; gap: 8px; }
+.topic-card .score { font-size: 13px; color: var(--success); font-weight: 600; }
+.topic-card .arrow { color: var(--text-muted); font-size: 18px; }
+
+/* QUIZ */
+#quiz { padding: 20px; padding-top: env(safe-area-inset-top, 20px); justify-content: space-between; }
+.quiz-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+.quiz-top .quit { background: none; border: none; color: var(--text-dim); font-size: 14px; cursor: pointer; }
+.quiz-progress { width: 100%; height: 4px; background: var(--card-border); border-radius: 4px; margin-bottom: 25px; overflow: hidden; }
+.quiz-progress .fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--primary-light)); border-radius: 4px; transition: width 0.4s ease; }
+.quiz-counter { font-size: 13px; color: var(--text-dim); }
+.question-area { flex: 1; }
+.question-text { font-size: 19px; font-weight: 600; line-height: 1.5; margin-bottom: 25px; }
+.options { display: flex; flex-direction: column; gap: 10px; }
+.option-btn { background: var(--card); border: 2px solid var(--card-border); border-radius: 14px; padding: 16px; color: var(--text); font-size: 15px; text-align: left; cursor: pointer; transition: all 0.2s; display: flex; align-items: flex-start; gap: 12px; line-height: 1.4; }
+.option-btn .letter { min-width: 28px; height: 28px; border-radius: 8px; background: var(--card-border); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0; transition: all 0.2s; }
+.option-btn:active:not(.disabled) { transform: scale(0.98); }
+.option-btn:not(.disabled):hover { border-color: var(--primary); }
+.option-btn:not(.disabled):hover .letter { background: var(--primary); }
+.option-btn.correct { border-color: var(--success); background: rgba(0, 184, 148, 0.08); }
+.option-btn.correct .letter { background: var(--success); }
+.option-btn.wrong { border-color: var(--danger); background: rgba(225, 112, 85, 0.08); }
+.option-btn.wrong .letter { background: var(--danger); }
+.option-btn.disabled { cursor: default; opacity: 0.6; }
+.option-btn.disabled.correct { opacity: 1; }
+.option-btn.disabled.wrong { opacity: 1; }
+.explanation { margin-top: 18px; padding: 16px; background: rgba(108, 92, 231, 0.08); border: 1px solid rgba(108, 92, 231, 0.2); border-radius: 14px; font-size: 14px; line-height: 1.6; color: var(--text-dim); display: none; }
+.explanation.show { display: block; }
+.explanation strong { color: var(--primary-light); }
+.quiz-bottom { padding: 15px 0; }
+.next-btn { width: 100%; padding: 16px; border: none; border-radius: 14px; background: linear-gradient(135deg, var(--primary), #7c6cf0); color: white; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s; display: none; }
+.next-btn.show { display: block; }
+.next-btn:active { transform: scale(0.97); }
+
+/* RESULTS */
+#results { padding: 20px; padding-top: env(safe-area-inset-top, 20px); justify-content: center; align-items: center; text-align: center; }
+.results-circle { width: 160px; height: 160px; border-radius: 50%; border: 6px solid var(--card-border); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 25px; }
+.results-circle.good { border-color: var(--success); }
+.results-circle.ok { border-color: #fdcb6e; }
+.results-circle.bad { border-color: var(--danger); }
+.results-circle .pct { font-size: 42px; font-weight: 800; }
+.results-circle .of { font-size: 13px; color: var(--text-dim); }
+.results-msg { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+.results-sub { color: var(--text-dim); font-size: 14px; margin-bottom: 30px; }
+.results-actions { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 300px; }
+.results-actions button { padding: 15px; border-radius: 14px; font-size: 15px; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; }
+.results-actions button:active { transform: scale(0.97); }
+.btn-primary { background: linear-gradient(135deg, var(--primary), #7c6cf0); color: white; }
+.btn-secondary { background: var(--card); border: 1px solid var(--card-border) !important; color: var(--text); }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.screen.active { animation: fadeIn 0.25s ease; }
+::-webkit-scrollbar { width: 0; }
+</style>
+</head>
+<body>
+
+<!-- LANGUAGE SELECT -->
+<div id="lang-select" class="screen active">
+  <div>
+    <div class="lang-title">🦷 DentPrep</div>
+    <div class="lang-sub">Choose your language / Zgjidhni gjuhën</div>
+    <div class="lang-buttons">
+      <div class="lang-btn" onclick="setLang('sq')">
+        <div class="flag">🇦🇱</div>
+        <div class="lname">Shqip</div>
+      </div>
+      <div class="lang-btn" onclick="setLang('en')">
+        <div class="flag">🇬🇧</div>
+        <div class="lname">English</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HOME -->
+<div id="home" class="screen">
+  <div class="home-top-bar">
+    <div></div>
+    <button class="lang-switch" id="lang-switch-btn" onclick="showScreen('lang-select')">🇦🇱/🇬🇧</button>
+  </div>
+  <div class="home-header">
+    <h1>🦷 DentPrep</h1>
+    <p id="home-subtitle"></p>
+  </div>
+  <div class="stats-bar">
+    <div class="stat-card"><div class="num" id="stat-answered">0</div><div class="label" id="lbl-answered"></div></div>
+    <div class="stat-card"><div class="num" id="stat-accuracy">0%</div><div class="label" id="lbl-accuracy"></div></div>
+    <div class="stat-card"><div class="num" id="stat-streak">0</div><div class="label" id="lbl-streak"></div></div>
+  </div>
+  <div class="section-title" id="lbl-subjects"></div>
+  <div class="subject-grid" id="subject-grid"></div>
+</div>
+
+<!-- TOPICS -->
+<div id="topics" class="screen">
+  <button class="back-btn" id="back-topics" onclick="showScreen('home')"></button>
+  <div class="topic-header">
+    <h2 id="topic-subject-name"></h2>
+    <p id="topic-subject-desc"></p>
+  </div>
+  <div class="topic-list" id="topic-list"></div>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz" class="screen">
+  <div>
+    <div class="quiz-top">
+      <span class="quiz-counter" id="quiz-counter">1 / 10</span>
+      <button class="quit" id="quit-btn" onclick="showScreen('home')"></button>
+    </div>
+    <div class="quiz-progress"><div class="fill" id="quiz-progress-fill" style="width:0%"></div></div>
+    <div class="question-area">
+      <div class="question-text" id="question-text"></div>
+      <div class="options" id="options"></div>
+      <div class="explanation" id="explanation"></div>
+    </div>
+  </div>
+  <div class="quiz-bottom">
+    <button class="next-btn" id="next-btn" onclick="nextQuestion()"></button>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div id="results" class="screen">
+  <div class="results-circle" id="results-circle">
+    <div class="pct" id="results-pct">0%</div>
+    <div class="of" id="results-of">0/0</div>
+  </div>
+  <div class="results-msg" id="results-msg"></div>
+  <div class="results-sub" id="results-sub"></div>
+  <div class="results-actions">
+    <button class="btn-primary" id="btn-retry" onclick="retryQuiz()"></button>
+    <button class="btn-secondary" id="btn-back-home" onclick="showScreen('home')"></button>
+  </div>
+</div>
+
+<script>
+// ===== UI TRANSLATIONS =====
+const UI = {
+  en: {
+    subtitle: "Ace your dental exams",
+    answered: "Answered", accuracy: "Accuracy", streak: "Streak",
+    subjects: "Subjects", back: "← Back", quit: "✕ Quit",
+    next: "Next →", seeResults: "See Results",
+    retry: "Try Again", backHome: "Back to Home",
+    questions: "questions",
+    results: [
+      ["Excellent! 🎉","You nailed it!"],
+      ["Good job! 💪","Keep reviewing the ones you missed."],
+      ["Getting there 📚","Review the explanations and try again."],
+      ["Keep studying 🔄","Read through the topic again before retrying."]
+    ]
+  },
+  sq: {
+    subtitle: "Përgatitu për provimet e stomatologjisë",
+    answered: "Përgjigjur", accuracy: "Saktësia", streak: "Seria",
+    subjects: "Lëndët", back: "← Kthehu", quit: "✕ Dil",
+    next: "Tjetra →", seeResults: "Shiko Rezultatet",
+    retry: "Provo Përsëri", backHome: "Kthehu në Ballinë",
+    questions: "pyetje",
+    results: [
+      ["Shkëlqyeshëm! 🎉","E kalove me sukses!"],
+      ["Punë e mirë! 💪","Rishiko ato që i gabove."],
+      ["Je në rrugë! 📚","Rishiko shpjegimet dhe provo përsëri."],
+      ["Vazhdo mësimin 🔄","Lexo temën përsëri para se të provosh."]
+    ]
+  }
+};
+
+// ===== QUESTION BANK (BILINGUAL) =====
+const SUBJECTS = [
+  {
+    id: "anatomy",
+    name: { en: "Oral Anatomy", sq: "Anatomia Orale" },
+    emoji: "🦴",
+    desc: { en: "Head, neck & dental anatomy", sq: "Anatomia e kokës, qafës dhe dhëmbëve" },
+    topics: [
+      {
+        name: { en: "Tooth Morphology", sq: "Morfologjia e Dhëmbëve" },
+        questions: [
+          {
+            q: { en: "Which permanent tooth has the longest root in the human dentition?", sq: "Cili dhëmb i përhershëm ka rrënjën më të gjatë në denticionin njerëzor?" },
+            options: { en: ["Maxillary central incisor", "Maxillary canine", "Mandibular canine", "Maxillary first premolar"], sq: ["Incizivi qendror maksillrar", "Kanini maksillrar", "Kanini mandibular", "Premolari i parë maksillrar"] },
+            correct: 1,
+            explanation: { en: "The <strong>maxillary canine</strong> has the longest root of any permanent tooth, averaging 26.5mm. This is a classic examiner favorite.", sq: "<strong>Kanini maksillrar</strong> ka rrënjën më të gjatë të çdo dhëmbi të përhershëm, mesatarisht 26.5mm. Kjo është pyetje klasike e provimeve." }
+          },
+          {
+            q: { en: "The oblique ridge is a characteristic feature of which tooth?", sq: "Kreshtë e pjerrët (oblique ridge) është tipar karakteristik i cilit dhëmb?" },
+            options: { en: ["Mandibular first molar", "Maxillary first molar", "Maxillary second premolar", "Mandibular second molar"], sq: ["Molari i parë mandibular", "Molari i parë maksillrar", "Premolari i dytë maksillrar", "Molari i dytë mandibular"] },
+            correct: 1,
+            explanation: { en: "The <strong>oblique ridge</strong> connects the mesiopalatal cusp to the distobuccal cusp on the <strong>maxillary first molar</strong>.", sq: "<strong>Kreshtë e pjerrët</strong> lidh kuspin meziopalatinal me kuspin distobukal në <strong>molarin e parë maksillrar</strong>." }
+          },
+          {
+            q: { en: "How many pulp horns does a mandibular first molar typically have?", sq: "Sa brirë të pulpës ka zakonisht molari i parë mandibular?" },
+            options: { en: ["3", "4", "5", "2"], sq: ["3", "4", "5", "2"] },
+            correct: 2,
+            explanation: { en: "The mandibular first molar typically has <strong>5 pulp horns</strong> — one for each cusp.", sq: "Molari i parë mandibular zakonisht ka <strong>5 brirë të pulpës</strong> — një për çdo kusp." }
+          },
+          {
+            q: { en: "Which tooth is known as the 'cornerstone of the dental arch'?", sq: "Cili dhëmb njihet si 'gurthemeli i harkut dentar'?" },
+            options: { en: ["Maxillary central incisor", "First molar", "Canine", "Second premolar"], sq: ["Incizivi qendror maksillrar", "Molari i parë", "Kanini", "Premolari i dytë"] },
+            correct: 2,
+            explanation: { en: "The <strong>canine</strong> is the cornerstone of the dental arch.", sq: "<strong>Kanini</strong> është gurthemeli i harkut dentar — ndodhet në pikën kthese të harkut, ka rrënjën më të gjatë." }
+          },
+          {
+            q: { en: "The Carabelli trait is most commonly found on which tooth?", sq: "Tipari i Carabelli gjendet më shpesh në cilin dhëmb?" },
+            options: { en: ["Maxillary second molar", "Maxillary first molar", "Mandibular first molar", "Maxillary first premolar"], sq: ["Molari i dytë maksillrar", "Molari i parë maksillrar", "Molari i parë mandibular", "Premolari i parë maksillrar"] },
+            correct: 1,
+            explanation: { en: "The <strong>Cusp of Carabelli</strong> is found on the mesiopalatal cusp of the <strong>maxillary first molar</strong>.", sq: "<strong>Kuspi i Carabelli</strong> gjendet në kuspin meziopalatinal të <strong>molarit të parë maksillrar</strong>." }
+          }
+        ]
+      },
+      {
+        name: { en: "Muscles of Mastication", sq: "Muskujt e Përtypsjes" },
+        questions: [
+          {
+            q: { en: "Which muscle is the primary protruder of the mandible?", sq: "Cili muskul është protruzioni kryesor i mandibulës?" },
+            options: { en: ["Masseter", "Lateral pterygoid", "Medial pterygoid", "Temporalis"], sq: ["Maseteri", "Pterigoideus lateral", "Pterigoideus medial", "Temporalisi"] },
+            correct: 1,
+            explanation: { en: "The <strong>lateral pterygoid</strong> (inferior head) is the primary protruder of the mandible.", sq: "<strong>Pterigoideus lateral</strong> (koka inferiore) është protruzioni kryesor i mandibulës." }
+          },
+          {
+            q: { en: "Which muscle of mastication is the strongest closer of the jaw?", sq: "Cili muskul i përtypsjes është mbyllësi më i fortë i nofullës?" },
+            options: { en: ["Temporalis", "Masseter", "Medial pterygoid", "Lateral pterygoid"], sq: ["Temporalisi", "Maseteri", "Pterigoideus medial", "Pterigoideus lateral"] },
+            correct: 1,
+            explanation: { en: "The <strong>masseter</strong> is the strongest muscle of mastication based on force generation.", sq: "<strong>Maseteri</strong> është muskuli më i fortë i përtypsjes bazuar në forcën e gjeneruar." }
+          },
+          {
+            q: { en: "All muscles of mastication are innervated by which nerve?", sq: "Të gjithë muskujt e përtypsjes inervohen nga cili nerv?" },
+            options: { en: ["Facial nerve (CN VII)", "Mandibular division of trigeminal (V3)", "Maxillary division of trigeminal (V2)", "Hypoglossal nerve (CN XII)"], sq: ["Nervi facial (CN VII)", "Dega mandibulare e trigeminusit (V3)", "Dega maksillare e trigeminusit (V2)", "Nervi hipoglosal (CN XII)"] },
+            correct: 1,
+            explanation: { en: "All four muscles of mastication are innervated by the <strong>mandibular division (V3)</strong> of the trigeminal nerve.", sq: "Të katër muskujt e përtypsjes inervohen nga <strong>dega mandibulare (V3)</strong> e nervit trigeminus." }
+          },
+          {
+            q: { en: "Which part of the temporalis muscle is responsible for retrusion of the mandible?", sq: "Cila pjesë e muskulit temporalis është përgjegjëse për retruzioni e mandibulës?" },
+            options: { en: ["Anterior fibers", "Middle fibers", "Posterior fibers", "All fibers equally"], sq: ["Fibrat anteriore", "Fibrat e mesme", "Fibrat posteriore", "Të gjitha fibrat njësoj"] },
+            correct: 2,
+            explanation: { en: "The <strong>posterior (horizontal) fibers</strong> of the temporalis retract the mandible.", sq: "<strong>Fibrat posteriore (horizontale)</strong> të temporalisit e tërheqin mandibulën prapa." }
+          },
+          {
+            q: { en: "The lateral pterygoid inserts into which structure?", sq: "Pterigoideus lateral insertohet në cilën strukturë?" },
+            options: { en: ["Angle of the mandible", "Coronoid process", "Pterygoid fovea and TMJ disc", "Mandibular foramen"], sq: ["Këndi i mandibulës", "Procesi koronoid", "Fovea pterigoidale dhe disku i TMJ", "Forameni mandibular"] },
+            correct: 2,
+            explanation: { en: "The <strong>superior head</strong> inserts into the TMJ disc and capsule. The <strong>inferior head</strong> inserts into the pterygoid fovea.", sq: "<strong>Koka superiore</strong> insertohet në diskun e TMJ. <strong>Koka inferiore</strong> insertohet në fovean pterigoidale." }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "pharmacology",
+    name: { en: "Pharmacology", sq: "Farmakologjia" },
+    emoji: "💊",
+    desc: { en: "Dental therapeutics & drug interactions", sq: "Terapeutika dentare dhe ndërveprimet e barnave" },
+    topics: [
+      {
+        name: { en: "Local Anesthetics", sq: "Anestetikët Lokal" },
+        questions: [
+          {
+            q: { en: "What is the maximum dose of lidocaine 2% with epinephrine for a 70kg patient?", sq: "Cila është doza maksimale e lidokainës 2% me epinefrinë për një pacient 70kg?" },
+            options: { en: ["245 mg", "500 mg", "7 mg/kg", "4.4 mg/kg (308 mg)"], sq: ["245 mg", "500 mg", "7 mg/kg", "4.4 mg/kg (308 mg)"] },
+            correct: 3,
+            explanation: { en: "Lidocaine with epi: <strong>7 mg/kg</strong>, max 500mg. Know BOTH values — examiners test either.", sq: "Lidokaina me epi: <strong>7 mg/kg</strong>, max 500mg. Dini TË DY vlerat — provuesit pyesin cilindo." }
+          },
+          {
+            q: { en: "Which local anesthetic is an ester type?", sq: "Cili anestetik lokal është i tipit ester?" },
+            options: { en: ["Lidocaine", "Articaine", "Procaine", "Bupivacaine"], sq: ["Lidokaina", "Artikaina", "Prokaina", "Bupivakaina"] },
+            correct: 2,
+            explanation: { en: "<strong>Procaine (Novocain)</strong> is an ester. Mnemonic: esters have ONE 'i', amides have TWO 'i's.", sq: "<strong>Prokaina (Novocain)</strong> është ester. Mnemonikë: esteret kanë NJË 'i', amidet kanë DY 'i'." }
+          },
+          {
+            q: { en: "True allergic reactions to amide local anesthetics are:", sq: "Reaksionet e vërteta alergjike ndaj anestetikëve amid janë:" },
+            options: { en: ["Very common", "Rare but significant", "Extremely rare (<1%)", "Non-existent"], sq: ["Shumë të zakonshme", "Të rralla por të rëndësishme", "Jashtëzakonisht të rralla (<1%)", "Nuk ekzistojnë"] },
+            correct: 2,
+            explanation: { en: "True allergy to amide LAs is <strong>extremely rare</strong> (<1%). Most reactions are vasovagal syncope or epinephrine response.", sq: "Alergjia e vërtetë ndaj LA amide është <strong>jashtëzakonisht e rrallë</strong> (<1%). Shumica e reaksioneve janë sinkopë vazovagale ose përgjigje ndaj epinefrinës." }
+          },
+          {
+            q: { en: "Which local anesthetic has the longest duration of action?", sq: "Cili anestetik lokal ka kohëzgjatjen më të gjatë të veprimit?" },
+            options: { en: ["Lidocaine", "Mepivacaine", "Bupivacaine", "Articaine"], sq: ["Lidokaina", "Mepivakaina", "Bupivakaina", "Artikaina"] },
+            correct: 2,
+            explanation: { en: "<strong>Bupivacaine (Marcaine)</strong> has the longest duration — up to 8+ hours.", sq: "<strong>Bupivakaina (Marcaine)</strong> ka kohëzgjatjen më të gjatë — deri 8+ orë anestezi të indeve të buta." }
+          },
+          {
+            q: { en: "Articaine is unique among dental local anesthetics because:", sq: "Artikaina është unike midis anestetikëve dental sepse:" },
+            options: { en: ["It's the only ester used", "It contains a thiophene ring instead of benzene", "It cannot be used with epinephrine", "It has no maximum dose"], sq: ["Është i vetmi ester i përdorur", "Përmban unazë tiofeni në vend të benzenit", "Nuk mund të përdoret me epinefrinë", "Nuk ka dozë maksimale"] },
+            correct: 1,
+            explanation: { en: "Articaine has a <strong>thiophene ring</strong> instead of benzene, making it more lipid-soluble with better tissue diffusion.", sq: "Artikaina ka <strong>unazë tiofeni</strong> në vend të benzenit, duke e bërë më të tretshme në lipide me difuzion më të mirë në inde." }
+          }
+        ]
+      },
+      {
+        name: { en: "Antibiotics in Dentistry", sq: "Antibiotikët në Stomatologji" },
+        questions: [
+          {
+            q: { en: "What is the first-line antibiotic for most dental infections?", sq: "Cili është antibiotiku i linjës së parë për shumicën e infeksioneve dentare?" },
+            options: { en: ["Metronidazole", "Azithromycin", "Amoxicillin", "Clindamycin"], sq: ["Metronidazoli", "Azitromicina", "Amoksicilina", "Klindamicina"] },
+            correct: 2,
+            explanation: { en: "<strong>Amoxicillin 500mg TID</strong> is the first-line for dental infections.", sq: "<strong>Amoksicilina 500mg TID</strong> është linja e parë për infeksionet dentare." }
+          },
+          {
+            q: { en: "For a penicillin-allergic patient with a dental abscess, which antibiotic is preferred?", sq: "Për një pacient alergjik ndaj penicilinës me absces dentar, cili antibiotik preferohet?" },
+            options: { en: ["Cephalexin", "Clindamycin", "Amoxicillin-clavulanate", "Tetracycline"], sq: ["Cefaleksina", "Klindamicina", "Amoksicilina-klavulanate", "Tetraciklina"] },
+            correct: 1,
+            explanation: { en: "<strong>Clindamycin 300mg QID</strong> — excellent bone penetration, covers anaerobes. Risk of C. difficile.", sq: "<strong>Klindamicina 300mg QID</strong> — penetrim i shkëlqyer në kockë, mbulon anaerobët. Rrezik i C. difficile." }
+          },
+          {
+            q: { en: "Metronidazole is effective against which type of organisms?", sq: "Metronidazoli është efektiv kundër cilit lloj të organizmave?" },
+            options: { en: ["Aerobic gram-positive cocci", "Obligate anaerobes", "Gram-negative aerobes", "Fungi"], sq: ["Kokët gram-pozitive aerobe", "Anaerobët obligat", "Aerobët gram-negativ", "Kërpudhat"] },
+            correct: 1,
+            explanation: { en: "<strong>Metronidazole</strong> targets <strong>obligate anaerobes</strong>. Often combined with amoxicillin.", sq: "<strong>Metronidazoli</strong> vepron kundër <strong>anaerobëve obligat</strong>. Shpesh kombinohet me amoksicilinë." }
+          },
+          {
+            q: { en: "The standard prophylactic antibiotic dose before dental procedures for at-risk cardiac patients is:", sq: "Doza standarde profilaktike para procedurave dentare për pacientët kardiak në rrezik është:" },
+            options: { en: ["Amoxicillin 250mg 1hr before", "Amoxicillin 2g 30-60min before", "Amoxicillin 500mg TID for 7 days", "Clindamycin 600mg after"], sq: ["Amoksicilina 250mg 1 orë para", "Amoksicilina 2g 30-60min para", "Amoksicilina 500mg TID për 7 ditë", "Klindamicina 600mg pas"] },
+            correct: 1,
+            explanation: { en: "<strong>Amoxicillin 2g, 30-60 minutes before</strong>. Single dose, oral. AHA guideline — examiners LOVE this.", sq: "<strong>Amoksicilina 2g, 30-60 minuta para</strong>. Dozë e vetme, orale. Guideline e AHA — provuesit e DUAN këtë pyetje." }
+          },
+          {
+            q: { en: "Which drug interaction is most dangerous with metronidazole?", sq: "Cila ndërveprim i barnave është më e rrezikshme me metronidazolin?" },
+            options: { en: ["Ibuprofen", "Alcohol", "Paracetamol", "Omeprazole"], sq: ["Ibuprofeni", "Alkooli", "Paracetamoli", "Omeprazoli"] },
+            correct: 1,
+            explanation: { en: "Metronidazole + <strong>alcohol</strong> = disulfiram-like reaction. Board exam classic.", sq: "Metronidazoli + <strong>alkooli</strong> = reaksion i tipit disulfiram. Klasike e provimeve." }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "oral-surgery",
+    name: { en: "Oral Surgery", sq: "Kirurgjia Orale" },
+    emoji: "🔪",
+    desc: { en: "Extractions, impactions & surgical principles", sq: "Ekstraktimet, impaktimet dhe parimet kirurgjikale" },
+    topics: [
+      {
+        name: { en: "Impacted Third Molars", sq: "Molarët e Tretë të Impaktuar" },
+        questions: [
+          {
+            q: { en: "According to Winter's classification, what is the most common angulation of impacted mandibular third molars?", sq: "Sipas klasifikimit të Winter-it, cili është angulimi më i zakonshëm i molarëve të tretë mandibular të impaktuar?" },
+            options: { en: ["Vertical", "Mesioangular", "Distoangular", "Horizontal"], sq: ["Vertikal", "Mezioanuglar", "Distoanuglar", "Horizontal"] },
+            correct: 1,
+            explanation: { en: "<strong>Mesioangular</strong> is the most common (~43%).", sq: "<strong>Mezioanuglar</strong> është më i zakonshmi (~43%)." }
+          },
+          {
+            q: { en: "In the Pell & Gregory classification, Class II refers to:", sq: "Në klasifikimin Pell & Gregory, Klasa II i referohet:" },
+            options: { en: ["Tooth is level with occlusal plane", "Available space is less than M-D width of crown", "Tooth is below cervical line of adjacent tooth", "Space equals M-D width"], sq: ["Dhëmbi është në nivelin e planit okluzal", "Hapësira e disponueshme është më e vogël se gjerësia M-D e kurorës", "Dhëmbi është nën vijën cervikale", "Hapësira barazohet me gjerësinë M-D"] },
+            correct: 1,
+            explanation: { en: "Pell & Gregory <strong>Class II</strong> = space between ramus and distal of second molar is <strong>less than</strong> M-D width of third molar crown.", sq: "Pell & Gregory <strong>Klasa II</strong> = hapësira midis ramusit dhe distalit të molarit të dytë është <strong>më e vogël</strong> se gjerësia M-D e kurorës së molarit të tretë." }
+          },
+          {
+            q: { en: "What is the most common complication after surgical extraction of mandibular third molars?", sq: "Cila është komplikacioni më i zakonshëm pas ekstraktimit kirurgjik të molarëve të tretë mandibular?" },
+            options: { en: ["Inferior alveolar nerve damage", "Alveolar osteitis (dry socket)", "Mandibular fracture", "Hemorrhage"], sq: ["Dëmtimi i nervit alveolar inferior", "Osteiti alveolar (dry socket)", "Fraktura e mandibulës", "Hemorragjia"] },
+            correct: 1,
+            explanation: { en: "<strong>Alveolar osteitis (dry socket)</strong> occurs in 2-5% of routine extractions, up to 25-30% for impacted third molars.", sq: "<strong>Osteiti alveolar (dry socket)</strong> ndodh në 2-5% të ekstraktimeve rutinore, deri 25-30% për molarët e tretë të impaktuar." }
+          },
+          {
+            q: { en: "Which nerve is most at risk during extraction of impacted mandibular third molars?", sq: "Cili nerv është më i rrezikuar gjatë ekstraktimit të molarëve të tretë mandibular të impaktuar?" },
+            options: { en: ["Mental nerve", "Lingual nerve", "Buccal nerve", "Mylohyoid nerve"], sq: ["Nervi mental", "Nervi lingual", "Nervi bukal", "Nervi milohioid"] },
+            correct: 1,
+            explanation: { en: "The <strong>lingual nerve</strong> is most commonly damaged (0.4-0.6% temporary).", sq: "<strong>Nervi lingual</strong> dëmtohet më shpesh (0.4-0.6% e përkohshme)." }
+          },
+          {
+            q: { en: "Coronectomy is indicated when:", sq: "Koronektomia indikohet kur:" },
+            options: { en: ["The tooth is fully erupted", "CBCT shows roots intimately related to IAN canal", "The patient is under 18", "The tooth is mesioangularly impacted"], sq: ["Dhëmbi është plotësisht i eruputuar", "CBCT tregon rrënjët në lidhje intime me kanalin e IAN", "Pacienti është nën 18 vjeç", "Dhëmbi është i impaktuar mezioanuglar"] },
+            correct: 1,
+            explanation: { en: "<strong>Coronectomy</strong> removes only the crown when CBCT confirms intimate root-IAN relationship.", sq: "<strong>Koronektomia</strong> heq vetëm kurorën kur CBCT konfirmon marrëdhënie intime rrënjë-IAN." }
+          }
+        ]
+      },
+      {
+        name: { en: "Supernumerary Teeth", sq: "Dhëmbët Supranumerar" },
+        questions: [
+          {
+            q: { en: "What is the most common type of supernumerary tooth?", sq: "Cili është lloji më i zakonshëm i dhëmbit supranumerar?" },
+            options: { en: ["Paramolar", "Distomolar", "Mesiodens", "Supplemental lateral incisor"], sq: ["Paramolari", "Distomolari", "Meziodentja", "Incizivi lateral suplementar"] },
+            correct: 2,
+            explanation: { en: "<strong>Mesiodens</strong> accounts for ~80% of all supernumeraries.", sq: "<strong>Meziodentja</strong> përbën ~80% të të gjithë supranumerarëve." }
+          },
+          {
+            q: { en: "Which syndrome is MOST associated with multiple supernumerary teeth?", sq: "Cili sindrom është MË I LIDHUR me dhëmbë supranumerar të shumëfishtë?" },
+            options: { en: ["Down syndrome", "Gardner syndrome", "Cleidocranial dysplasia", "Turner syndrome"], sq: ["Sindromi Down", "Sindromi Gardner", "Displazia kleidokraniale", "Sindromi Turner"] },
+            correct: 2,
+            explanation: { en: "<strong>Cleidocranial dysplasia</strong> — multiple supernumeraries, absent/hypoplastic clavicles, delayed fontanelle closure.", sq: "<strong>Displazia kleidokraniale</strong> — supranumerar të shumëfishtë, klavikula të munguar/hipoplastike, mbyllje e vonuar e fontanelave." }
+          },
+          {
+            q: { en: "What is the most common complication caused by supernumerary teeth?", sq: "Cila është komplikacioni më i zakonshëm i shkaktuar nga dhëmbët supranumerar?" },
+            options: { en: ["Root resorption of adjacent teeth", "Delayed/failed eruption of permanent teeth", "Odontogenic cyst formation", "Crowding"], sq: ["Resorbimi i rrënjës së dhëmbëve fqinj", "Erupcioni i vonuar/dështuar i dhëmbëve të përhershëm", "Formimi i cistës odontogjenë", "Ngjeshja"] },
+            correct: 1,
+            explanation: { en: "<strong>Delayed or failed eruption</strong> of adjacent permanent teeth is the most common complication (~30-60%).", sq: "<strong>Erupcioni i vonuar ose i dështuar</strong> i dhëmbëve të përhershëm fqinj është komplikacioni më i zakonshëm (~30-60%)." }
+          },
+          {
+            q: { en: "External root resorption caused by supernumerary teeth is best diagnosed by:", sq: "Resorbimi i jashtëm i rrënjës i shkaktuar nga dhëmbët supranumerar diagnostikohet më mirë me:" },
+            options: { en: ["Periapical radiograph", "Clinical examination", "CBCT scan", "Panoramic radiograph"], sq: ["Radiografi periapikale", "Ekzaminim klinik", "CBCT skanim", "Radiografi panoramike"] },
+            correct: 2,
+            explanation: { en: "<strong>CBCT</strong> is the gold standard for diagnosing root resorption — shows exact 3D relationship.", sq: "<strong>CBCT</strong> është standardi i artë për diagnostikimin e resorbimit — tregon marrëdhënien e saktë 3D." }
+          },
+          {
+            q: { en: "Bilateral supernumerary teeth in the molar region are classified as:", sq: "Dhëmbët supranumerar bilateral në rajonin molar klasifikohen si:" },
+            options: { en: ["Mesiodens", "Paramolars or distomolars", "Odontomas", "Supplemental teeth"], sq: ["Meziodentë", "Paramolarë ose distomolarë", "Odontoma", "Dhëmbë suplementarë"] },
+            correct: 1,
+            explanation: { en: "<strong>Paramolars</strong> are buccal/palatal to molars. <strong>Distomolars</strong> are distal to third molar. Bilateral occurrence is rare (<1%).", sq: "<strong>Paramolarët</strong> janë bukale/palatinale ndaj molarëve. <strong>Distomolarët</strong> janë distale ndaj molarit të tretë. Paraqitja bilaterale është e rrallë (<1%)." }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "endodontics",
+    name: { en: "Endodontics", sq: "Endodontia" },
+    emoji: "🔬",
+    desc: { en: "Pulp biology, root canal therapy", sq: "Biologjia e pulpës, terapia endodontike" },
+    topics: [
+      {
+        name: { en: "Pulp Diagnosis", sq: "Diagnoza e Pulpës" },
+        questions: [
+          {
+            q: { en: "A tooth that responds with a sharp, momentary pain to cold that disappears immediately has:", sq: "Një dhëmb që përgjigjet me dhimbje të mprehtë momentale nga ftohja që zhduket menjëherë ka:" },
+            options: { en: ["Irreversible pulpitis", "Reversible pulpitis", "Pulp necrosis", "Normal pulp response"], sq: ["Pulpit ireversibil", "Pulpit reversibil", "Nekrozë pulpe", "Përgjigje normale e pulpës"] },
+            correct: 3,
+            explanation: { en: "A <strong>normal pulp</strong> responds to cold with brief sensation that disappears when stimulus is removed.", sq: "<strong>Pulpa normale</strong> përgjigjet ndaj ftohjës me ndjesi të shkurtër që zhduket kur largohet stimuli." }
+          },
+          {
+            q: { en: "Spontaneous, lingering pain that wakes the patient at night suggests:", sq: "Dhimbja spontane e zgjatur që zgjon pacientin natën sugjeron:" },
+            options: { en: ["Reversible pulpitis", "Irreversible pulpitis", "Apical periodontitis", "Cracked tooth"], sq: ["Pulpit reversibil", "Pulpit ireversibil", "Periodontit apikal", "Dhëmb i çarë"] },
+            correct: 1,
+            explanation: { en: "<strong>Irreversible pulpitis</strong> — spontaneous pain, lingers, disturbs sleep. Treatment: RCT or extraction.", sq: "<strong>Pulpit ireversibil</strong> — dhimbje spontane, zgjat, shqetëson gjumin. Trajtimi: RCT ose ekstraksion." }
+          },
+          {
+            q: { en: "A tooth with no response to EPT or cold test most likely has:", sq: "Një dhëmb pa përgjigje ndaj EPT ose testit të ftohtë ka më së shumti:" },
+            options: { en: ["Reversible pulpitis", "Normal pulp", "Pulp necrosis", "Internal resorption"], sq: ["Pulpit reversibil", "Pulpë normale", "Nekrozë pulpe", "Resorbim intern"] },
+            correct: 2,
+            explanation: { en: "<strong>Pulp necrosis</strong> — no response to vitality tests.", sq: "<strong>Nekroza e pulpës</strong> — pa përgjigje ndaj testeve të vitalitetit." }
+          },
+          {
+            q: { en: "The most reliable method to test pulp vitality (blood flow) is:", sq: "Metoda më e besueshme për testimin e vitalitetit të pulpës (qarkullimit) është:" },
+            options: { en: ["Cold test", "Electric pulp test", "Laser Doppler flowmetry", "Heat test"], sq: ["Testi i ftohtë", "Testi elektrik i pulpës", "Flowmetria Laser Doppler", "Testi i nxehtë"] },
+            correct: 2,
+            explanation: { en: "<strong>Laser Doppler flowmetry</strong> measures actual blood flow (true vitality), not nerve response.", sq: "<strong>Flowmetria Laser Doppler</strong> mat qarkullimin e vërtetë (vitalitetin), jo përgjigjen nervore." }
+          },
+          {
+            q: { en: "Percussion sensitivity indicates pathology in which tissue?", sq: "Ndjeshmëria ndaj perkusionit tregon patologji në cilin ind?" },
+            options: { en: ["Pulp", "Periapical tissues (PDL)", "Enamel", "Gingiva"], sq: ["Pulpën", "Indet periapikale (PDL)", "Smaltën", "Gingivën"] },
+            correct: 1,
+            explanation: { en: "<strong>Periapical tissues / PDL</strong> — percussion tests the periodontal ligament, NOT the pulp.", sq: "<strong>Indet periapikale / PDL</strong> — perkusioni teston ligamentin periodontal, JO pulpën." }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "radiology",
+    name: { en: "Oral Radiology", sq: "Radiologjia Orale" },
+    emoji: "📡",
+    desc: { en: "Imaging techniques & interpretation", sq: "Teknikat e imazhimit dhe interpretimi" },
+    topics: [
+      {
+        name: { en: "CBCT & Imaging Basics", sq: "CBCT dhe Bazat e Imazhimit" },
+        questions: [
+          {
+            q: { en: "What is the main advantage of CBCT over conventional CT?", sq: "Cila është përparësia kryesore e CBCT ndaj CT konvencionale?" },
+            options: { en: ["Better soft tissue contrast", "Lower radiation dose", "Higher soft tissue resolution", "Faster processing"], sq: ["Kontrast më i mirë i indeve të buta", "Dozë më e ulët e rrezatimit", "Rezolucion më i lartë i indeve të buta", "Përpunim më i shpejtë"] },
+            correct: 1,
+            explanation: { en: "<strong>Lower radiation dose</strong> — up to 98% less than medical CT.", sq: "<strong>Dozë më e ulët rrezatimi</strong> — deri 98% më pak se CT mjekësore." }
+          },
+          {
+            q: { en: "CBCT is indicated over periapical radiography when:", sq: "CBCT indikohet mbi radiografinë periapikale kur:" },
+            options: { en: ["Diagnosing simple caries", "Routine endodontic treatment", "Complex impactions near vital structures", "Checking periodontal bone levels"], sq: ["Diagnostikimi i kariesit të thjeshtë", "Trajtimi endodontik rutinor", "Impaktime komplekse pranë strukturave vitale", "Kontrollimi i niveleve të kockës periodontale"] },
+            correct: 2,
+            explanation: { en: "CBCT for <strong>complex cases</strong>: impactions near IAN/sinus, supernumeraries, root resorption, pre-implant planning.", sq: "CBCT për <strong>raste komplekse</strong>: impaktime pranë IAN/sinusit, supranumerar, resorbim rrënje, planifikim para-implantit." }
+          },
+          {
+            q: { en: "In CBCT, a voxel is:", sq: "Në CBCT, vokseli është:" },
+            options: { en: ["A 2D pixel", "A 3D volumetric unit", "A type of artifact", "A radiation dose measure"], sq: ["Piksel 2D", "Njësi vëllimore 3D", "Lloj artefakti", "Masë e dozës së rrezatimit"] },
+            correct: 1,
+            explanation: { en: "A <strong>voxel</strong> is the smallest 3D unit in a CBCT dataset. Smaller = higher resolution but more radiation.", sq: "<strong>Vokseli</strong> është njësia më e vogël 3D në të dhënat CBCT. Më i vogël = rezolucion më i lartë por më shumë rrezatim." }
+          },
+          {
+            q: { en: "Which artifact is most common near metallic restorations in CBCT?", sq: "Cili artefakt është më i zakonshëm pranë restaurimeve metalike në CBCT?" },
+            options: { en: ["Motion blur", "Beam hardening (streak artifacts)", "Ghost images", "Aliasing"], sq: ["Turbullim nga lëvizja", "Ngurtësim i rrezes (artefakte me vija)", "Imazhe fantazmë", "Aliasing"] },
+            correct: 1,
+            explanation: { en: "<strong>Beam hardening</strong> causes dark streaks near dense objects.", sq: "<strong>Ngurtësimi i rrezes</strong> shkakton vija të errëta pranë objekteve të dendura." }
+          },
+          {
+            q: { en: "The FOV in CBCT should be selected based on:", sq: "FOV në CBCT duhet zgjedhur bazuar në:" },
+            options: { en: ["Always use the largest", "The diagnostic question — as small as achievable", "Patient age only", "Machine type"], sq: ["Gjithmonë përdor më të madhin", "Pyetjen diagnostike — sa më i vogël të jetë i mundur", "Vetëm moshën e pacientit", "Llojin e aparatit"] },
+            correct: 1,
+            explanation: { en: "Follow <strong>ALARA</strong> — smallest FOV that answers the clinical question.", sq: "Ndiq <strong>ALARA</strong> — FOV më i vogël që i përgjigjet pyetjes klinike." }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "perio",
+    name: { en: "Periodontology", sq: "Periodontologjia" },
+    emoji: "🦠",
+    desc: { en: "Periodontal disease & management", sq: "Sëmundjet periodontale dhe menaxhimi" },
+    topics: [
+      {
+        name: { en: "Classification & Diagnosis", sq: "Klasifikimi dhe Diagnoza" },
+        questions: [
+          {
+            q: { en: "Stage III periodontitis is characterized by:", sq: "Periodontiti i Fazës III karakterizohet nga:" },
+            options: { en: ["CAL 1-2mm", "CAL 3-4mm", "CAL ≥5mm", "No bone loss"], sq: ["CAL 1-2mm", "CAL 3-4mm", "CAL ≥5mm", "Pa humbje kocke"] },
+            correct: 2,
+            explanation: { en: "<strong>Stage III: CAL ≥5mm</strong>, bone loss to middle/apical third of root.", sq: "<strong>Faza III: CAL ≥5mm</strong>, humbje kocke deri në të tretën e mesme/apikale të rrënjës." }
+          },
+          {
+            q: { en: "Grade C periodontitis indicates:", sq: "Periodontiti Grada C tregon:" },
+            options: { en: ["Slow progression", "Moderate progression", "Rapid progression", "No progression"], sq: ["Progresion të ngadaltë", "Progresion të moderuar", "Progresion të shpejtë", "Pa progresion"] },
+            correct: 2,
+            explanation: { en: "<strong>Grade C = rapid progression</strong>. >2mm bone loss over 5 years.", sq: "<strong>Grada C = progresion i shpejtë</strong>. >2mm humbje kocke gjatë 5 viteve." }
+          },
+          {
+            q: { en: "The primary etiologic factor for periodontal disease is:", sq: "Faktori kryesor etiologjik i sëmundjes periodontale është:" },
+            options: { en: ["Calculus", "Bacterial biofilm (plaque)", "Smoking", "Genetic susceptibility"], sq: ["Gurët e dhëmbëve", "Biofilmi bakterial (pllaka)", "Pirja e duhanit", "Predispozita gjenetike"] },
+            correct: 1,
+            explanation: { en: "<strong>Bacterial biofilm</strong> is the primary cause. Calculus is a contributing factor.", sq: "<strong>Biofilmi bakterial</strong> është shkaku kryesor. Gurët janë faktor kontribues." }
+          },
+          {
+            q: { en: "BOP (Bleeding on Probing) indicates:", sq: "BOP (Gjakderdhja në Sondim) tregon:" },
+            options: { en: ["Active bone loss", "Gingival/periodontal inflammation", "Irreversible damage", "Need for antibiotics"], sq: ["Humbje aktive kocke", "Inflamacion gingival/periodontal", "Dëmtim ireversibil", "Nevojë për antibiotikë"] },
+            correct: 1,
+            explanation: { en: "<strong>BOP = inflammation</strong>. Earliest clinical sign. Absence of BOP predicts stability.", sq: "<strong>BOP = inflamacion</strong>. Shenja e parë klinike. Mungesa e BOP parashikon stabilitet." }
+          },
+          {
+            q: { en: "A true periodontal pocket differs from a pseudopocket in that:", sq: "Xhepi i vërtetë periodontal dallon nga pseudoxhepi sepse:" },
+            options: { en: ["Has gingival enlargement only", "Has apical migration of junctional epithelium", "Probing depth <3mm", "No bone loss"], sq: ["Ka vetëm zmadhim gingival", "Ka migrim apikal të epitelit bashkues", "Thellësia e sondimit <3mm", "Pa humbje kocke"] },
+            correct: 1,
+            explanation: { en: "True pocket: <strong>apical migration of junctional epithelium</strong> with attachment loss.", sq: "Xhepi i vërtetë: <strong>migrim apikal i epitelit bashkues</strong> me humbje të lidhjes." }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: "operative",
+    name: { en: "Operative Dentistry", sq: "Dentistria Operative" },
+    emoji: "🪥",
+    desc: { en: "Dental materials, restorations & techniques", sq: "Materialet dentare, restaurimet dhe teknikat" },
+    topics: [
+      {
+        name: { en: "Glass Ionomer Cement (GIC)", sq: "Çimentoja Glas Ionomer (GIC)" },
+        questions: [
+          {
+            q: { en: "What is the powder component of conventional GIC?", sq: "Cili është komponenti pluhur i GIC konvencionale?" },
+            options: { en: ["Zinc oxide + magnesium oxide", "Calcium-fluoroaluminosilicate glass", "Quartz + barium glass", "Polymethyl methacrylate"], sq: ["Oksid zinku + oksid magnezi", "Qelq kalcium-fluoroaluminosilikat", "Kuarc + qelq bariumi", "Polimetilmetakrilat"] },
+            correct: 1,
+            explanation: { en: "The powder is <strong>calcium-fluoroaluminosilicate glass</strong> (SiO₂, Al₂O₃, CaF₂, Na₃AlF₆, AlPO₄). The fluoride gives GIC its anticariogenic property.", sq: "Pluhuri është <strong>qelq kalcium-fluoroaluminosilikat</strong> (SiO₂, Al₂O₃, CaF₂, Na₃AlF₆, AlPO₄). Fluoridi i jep GIC-së vetinë antikariogjene." }
+          },
+          {
+            q: { en: "What is the liquid component of conventional GIC?", sq: "Cili është komponenti i lëngshëm i GIC konvencionale?" },
+            options: { en: ["Phosphoric acid", "Eugenol", "Polyacrylic acid (PAA)", "MMA monomer"], sq: ["Acidi fosforik", "Eugenoli", "Acidi poliakrillik (PAA)", "Monomeri MMA"] },
+            correct: 2,
+            explanation: { en: "<strong>Polyacrylic acid</strong> (40-50% solution). Some also contain tartaric acid which controls setting time.", sq: "<strong>Acidi poliakrillik</strong> (solucioni 40-50%). Disa përmbajnë edhe acid tartarik që kontrollon kohën e ngurtësimit." }
+          },
+          {
+            q: { en: "The setting reaction of GIC is:", sq: "Reaksioni i ngurtësimit të GIC është:" },
+            options: { en: ["Addition polymerization", "Condensation polymerization", "Acid-base reaction", "Light-activated polymerization"], sq: ["Polimerizim i adicionit", "Polimerizim i kondensimit", "Reaksion acid-bazë", "Polimerizim i aktivizuar me dritë"] },
+            correct: 2,
+            explanation: { en: "GIC sets by an <strong>acid-base reaction</strong>. Ca²⁺ cross-links first (initial set), then Al³⁺ (final set, 24-48h).", sq: "GIC ngurtësohet me <strong>reaksion acid-bazë</strong>. Ca²⁺ lidhet i pari (ngurtësim fillestar), pastaj Al³⁺ (ngurtësim final, 24-48h)." }
+          },
+          {
+            q: { en: "The powder:liquid ratio for luting GIC is:", sq: "Raporti pluhur:lëng për GIC çimentuese është:" },
+            options: { en: ["1.5:1", "3:1", "4:1", "1:1"], sq: ["1.5:1", "3:1", "4:1", "1:1"] },
+            correct: 0,
+            explanation: { en: "Luting GIC: <strong>1.5:1</strong> (thin). Restorative: 3:1 to 4:1 (thick).", sq: "GIC çimentuese: <strong>1.5:1</strong> (e hollë). Restauruese: 3:1 deri 4:1 (e trashë)." }
+          },
+          {
+            q: { en: "Which GIC generation contains resin (HEMA)?", sq: "Cila gjeneratë e GIC përmban rezinë (HEMA)?" },
+            options: { en: ["Conventional GIC", "Cermet", "Resin-modified GIC (RMGIC)", "High-viscosity GIC"], sq: ["GIC konvencionale", "Cermet", "GIC e modifikuar me rezinë (RMGIC)", "GIC me viskozitet të lartë"] },
+            correct: 2,
+            explanation: { en: "<strong>RMGIC</strong> contains HEMA + photoinitiators. Sets by BOTH acid-base AND light-cured polymerization.", sq: "<strong>RMGIC</strong> përmban HEMA + fotoiniciatorë. Ngurtësohet me TË DY reaksion acid-bazë DHE polimerizim me dritë." }
+          },
+          {
+            q: { en: "GIC bonds to tooth structure via:", sq: "GIC lidhet me strukturën e dhëmbit përmes:" },
+            options: { en: ["Micromechanical retention only", "Chemical bond to calcium in hydroxyapatite", "Resin infiltration of etched enamel", "Van der Waals forces only"], sq: ["Vetëm retension mekanike", "Lidhje kimike me kalciumin në hidroksiapatit", "Infiltrim rezine në smalt të gdhendur", "Vetëm forca Van der Waals"] },
+            correct: 1,
+            explanation: { en: "GIC forms a <strong>chemical bond</strong> — carboxyl groups bond to calcium in hydroxyapatite. No etching needed.", sq: "GIC formon <strong>lidhje kimike</strong> — grupet karboksile lidhen me kalciumin në hidroksiapatit. Nuk nevojitet gdhendja." }
+          },
+          {
+            q: { en: "Which type of GIC is used for ART technique?", sq: "Cili tip i GIC përdoret për teknikën ART?" },
+            options: { en: ["Type I (luting)", "Type II — high viscosity", "RMGIC", "Type III (liner)"], sq: ["Tipi I (çimentuese)", "Tipi II — viskozitet i lartë", "RMGIC", "Tipi III (liner)"] },
+            correct: 1,
+            explanation: { en: "<strong>High-viscosity GIC (Type II)</strong> for ART — hand instruments only, ideal for field conditions.", sq: "<strong>GIC me viskozitet të lartë (Tipi II)</strong> për ART — vetëm instrumente dore, ideale për kushte në terren." }
+          },
+          {
+            q: { en: "GIC fluoride release pattern is:", sq: "Modeli i lirimit të fluoridit nga GIC është:" },
+            options: { en: ["Constant forever", "High initial burst, then sustained low release", "Only when exposed to acid", "No release after setting"], sq: ["Konstant përgjithmonë", "Shpërthim fillestar i lartë, pastaj lirim i ulët i vazhdueshëm", "Vetëm kur ekspozohet ndaj acidit", "Pa lirim pas ngurtësimit"] },
+            correct: 1,
+            explanation: { en: "<strong>High burst first 24-48h</strong>, then sustained release for months-years. GIC can also <strong>recharge</strong> fluoride.", sq: "<strong>Shpërthim i lartë 24-48h të para</strong>, pastaj lirim i vazhdueshëm për muaj-vite. GIC mund edhe të <strong>rikarikohet</strong> me fluorid." }
+          },
+          {
+            q: { en: "Cermet contains which metal?", sq: "Cermet përmban cilin metal?" },
+            options: { en: ["Gold", "Silver-tin alloy", "Stainless steel", "Titanium"], sq: ["Ar", "Aliazh argjend-kallaj", "Çelik inox", "Titan"] },
+            correct: 1,
+            explanation: { en: "<strong>Silver-tin alloy</strong> sintered with glass powder. Rarely used today — poor esthetics.", sq: "<strong>Aliazhi argjend-kallaj</strong> i sinteruar me pluhur qelqi. Rrallë përdoret sot — estetikë e dobët." }
+          },
+          {
+            q: { en: "The main disadvantage of conventional GIC vs composite:", sq: "Disavantazhi kryesor i GIC konvencionale ndaj kompozitit:" },
+            options: { en: ["No fluoride release", "Cannot bond to tooth", "Poor esthetics and low fracture toughness", "Requires etching"], sq: ["Pa lirim fluoridi", "Nuk lidhet me dhëmbin", "Estetikë e dobët dhe rezistencë e ulët ndaj thyerjes", "Kërkon gdhendje"] },
+            correct: 2,
+            explanation: { en: "GIC: <strong>poor esthetics, low fracture toughness, low tensile strength</strong>. But great biocompatibility and fluoride release.", sq: "GIC: <strong>estetikë e dobët, rezistencë e ulët ndaj thyerjes, forcë e ulët tensioni</strong>. Por biokompatibilitet i shkëlqyer dhe lirim fluoridi." }
+          }
+        ]
+      },
+      {
+        name: { en: "Dental Amalgam", sq: "Amalgami Dentar" },
+        questions: [
+          {
+            q: { en: "The main components of dental amalgam alloy are:", sq: "Komponentët kryesore të aliazhit të amalgamit dentar janë:" },
+            options: { en: ["Silver, tin, zinc, copper", "Silver, tin, copper, zinc (±mercury)", "Gold, palladium, silver", "Nickel, chromium, cobalt"], sq: ["Argjend, kallaj, zink, bakër", "Argjend, kallaj, bakër, zink (±mërkur)", "Ar, paladium, argjend", "Nikel, krom, kobalt"] },
+            correct: 1,
+            explanation: { en: "<strong>Ag ~40-70%, Sn ~25-30%, Cu ~13-30%, Zn 0-2%</strong>. Mixed with mercury to form amalgam.", sq: "<strong>Ag ~40-70%, Sn ~25-30%, Cu ~13-30%, Zn 0-2%</strong>. Përzihet me mërkur për të formuar amalgamin." }
+          },
+          {
+            q: { en: "The gamma-1 (γ₁) phase in amalgam is:", sq: "Faza gamma-1 (γ₁) në amalgam është:" },
+            options: { en: ["Ag₃Sn", "Ag₂Hg₃", "Sn₇₋₈Hg", "Cu₆Sn₅"], sq: ["Ag₃Sn", "Ag₂Hg₃", "Sn₇₋₈Hg", "Cu₆Sn₅"] },
+            correct: 1,
+            explanation: { en: "<strong>γ₁ = Ag₂Hg₃</strong> — the matrix phase, strongest reaction product.", sq: "<strong>γ₁ = Ag₂Hg₃</strong> — faza matrice, produkti më i fortë i reaksionit." }
+          },
+          {
+            q: { en: "The gamma-2 (γ₂) phase is problematic because:", sq: "Faza gamma-2 (γ₂) është problematike sepse:" },
+            options: { en: ["Too hard and brittle", "Corrodes and is the weakest phase", "Releases excessive mercury", "Expands too much"], sq: ["Shumë e fortë dhe e brishtë", "Korodohet dhe është faza më e dobët", "Liron mërkur të tepërt", "Zgjerohet shumë"] },
+            correct: 1,
+            explanation: { en: "<strong>γ₂ (Sn₇₋₈Hg)</strong> — weakest, most corrosion-prone. High-copper amalgams eliminate it.", sq: "<strong>γ₂ (Sn₇₋₈Hg)</strong> — më e dobëta, më e prirur për korozion. Amalgamet me bakër të lartë e eliminojnë." }
+          },
+          {
+            q: { en: "High-copper amalgams were developed to:", sq: "Amalgamet me bakër të lartë u zhvilluan për:" },
+            options: { en: ["Improve esthetics", "Reduce mercury", "Eliminate gamma-2 phase", "Increase working time"], sq: ["Përmirësim estetike", "Ulje mërkuri", "Eliminim faza gamma-2", "Rritje kohës së punës"] },
+            correct: 2,
+            explanation: { en: "High-copper (>12% Cu) <strong>eliminates γ₂</strong>. Cu₆Sn₅ forms instead — much more stable.", sq: "Bakri i lartë (>12% Cu) <strong>eliminon γ₂</strong>. Formohet Cu₆Sn₅ — shumë më stabil." }
+          },
+          {
+            q: { en: "Mercury:alloy ratio in amalgam is approximately:", sq: "Raporti mërkur:aliazh në amalgam është afërsisht:" },
+            options: { en: ["1:1 (equal parts)", "1:2", "2:1", "1:10"], sq: ["1:1 (pjesë të barabarta)", "1:2", "2:1", "1:10"] },
+            correct: 0,
+            explanation: { en: "Approximately <strong>1:1 by weight</strong> (42-50% mercury). Proper condensation minimizes residual mercury.", sq: "Afërsisht <strong>1:1 sipas peshës</strong> (42-50% mërkur). Kondensimi i duhur minimizon mërkurin e mbetur." }
+          },
+          {
+            q: { en: "Zinc in amalgam alloy serves as:", sq: "Zinku në aliazhin e amalgamit shërben si:" },
+            options: { en: ["Increases strength", "Scavenger/deoxidizer during manufacturing", "Improves corrosion resistance", "Reduces expansion"], sq: ["Rrit forcën", "Pastrues/deoksidues gjatë prodhimit", "Përmirëson rezistencën ndaj korozionit", "Ul zgjerimin"] },
+            correct: 1,
+            explanation: { en: "Zinc is a <strong>scavenger/deoxidizer</strong>. Moisture contamination of zinc-containing amalgam → delayed expansion.", sq: "Zinku është <strong>pastrues/deoksidues</strong>. Kontaminimi me lagështi i amalgamit me zink → zgjerim i vonuar." }
+          },
+          {
+            q: { en: "Trituration refers to:", sq: "Triturimi i referohet:" },
+            options: { en: ["Carving", "Mixing alloy with mercury", "Polishing", "Condensing"], sq: ["Gdhendjes", "Përzierjes së aliazhit me mërkur", "Lustrimit", "Kondensimit"] },
+            correct: 1,
+            explanation: { en: "<strong>Trituration = mechanical mixing</strong> of alloy + mercury. Under-trituration → grainy. Over-trituration → fast setting.", sq: "<strong>Triturimi = përzierje mekanike</strong> e aliazhit + mërkurit. Nën-triturim → kokërrzor. Mbri-triturim → ngurtësim i shpejtë." }
+          },
+          {
+            q: { en: "Creep in dental amalgam refers to:", sq: "Creep në amalgamin dentar i referohet:" },
+            options: { en: ["Expansion from moisture", "Slow deformation under constant load", "Corrosion at interface", "Mercury release"], sq: ["Zgjerim nga lagështia", "Deformim i ngadaltë nën ngarkesë konstante", "Korozion në ndërfaqe", "Lirim mërkuri"] },
+            correct: 1,
+            explanation: { en: "<strong>Creep = slow plastic deformation under constant compressive load</strong>. Related to γ₂ presence.", sq: "<strong>Creep = deformim plastik i ngadaltë nën ngarkesë kompresive konstante</strong>. Lidhet me praninë e γ₂." }
+          },
+          {
+            q: { en: "The Ag₃Sn phase is called:", sq: "Faza Ag₃Sn quhet:" },
+            options: { en: ["Gamma-1", "Gamma-2", "Gamma (γ)", "Eta (η)"], sq: ["Gamma-1", "Gamma-2", "Gamma (γ)", "Eta (η)"] },
+            correct: 2,
+            explanation: { en: "<strong>Gamma (γ) = Ag₃Sn</strong> — the original unreacted alloy, strongest phase.", sq: "<strong>Gamma (γ) = Ag₃Sn</strong> — aliazhi origjinal i pareaguar, faza më e fortë." }
+          },
+          {
+            q: { en: "Single-composition high-copper amalgam uses which particle shape?", sq: "Amalgami me bakër të lartë me kompozicion të vetëm përdor cilën formë grimce?" },
+            options: { en: ["Lathe-cut only", "Admixed", "Spherical", "All can be spherical"], sq: ["Vetëm lathe-cut", "Admixed", "Sferike", "Të gjitha mund të jenë sferike"] },
+            correct: 2,
+            explanation: { en: "<strong>Spherical particles</strong> (e.g., Tytin). Require less mercury and less condensation force.", sq: "<strong>Grimca sferike</strong> (p.sh., Tytin). Kërkojnë më pak mërkur dhe forcë kondensimi." }
+          }
+        ]
+      },
+      {
+        name: { en: "Composite Resin", sq: "Rezina Kompozite" },
+        questions: [
+          {
+            q: { en: "The three main components of dental composite are:", sq: "Tre komponentët kryesore të kompozitit dentar janë:" },
+            options: { en: ["Powder, liquid, catalyst", "Resin matrix, filler particles, coupling agent", "HEMA, polyacrylic acid, glass", "Monomer, polymer, solvent"], sq: ["Pluhur, lëng, katalizator", "Matrica rezinore, grimca mbushëse, agjent lidhës", "HEMA, acid poliakrillik, qelq", "Monomer, polimer, tretës"] },
+            correct: 1,
+            explanation: { en: "<strong>1) Resin matrix</strong> (Bis-GMA, UDMA, TEGDMA), <strong>2) Fillers</strong> (quartz, silica, barium glass), <strong>3) Coupling agent</strong> (silane).", sq: "<strong>1) Matrica rezinore</strong> (Bis-GMA, UDMA, TEGDMA), <strong>2) Mbushëset</strong> (kuarc, silikë, qelq bariumi), <strong>3) Agjenti lidhës</strong> (silan)." }
+          },
+          {
+            q: { en: "Bis-GMA (Bowen's resin) is:", sq: "Bis-GMA (rezina e Bowen-it) është:" },
+            options: { en: ["The filler", "The most common resin matrix monomer", "A type of GIC", "The coupling agent"], sq: ["Mbushësi", "Monomeri më i zakonshëm i matricës rezinore", "Lloj i GIC", "Agjenti lidhës"] },
+            correct: 1,
+            explanation: { en: "<strong>Bis-GMA</strong> — developed by Bowen 1962. Diluted with TEGDMA for workability.", sq: "<strong>Bis-GMA</strong> — zhvilluar nga Bowen 1962. Hollohet me TEGDMA për punueshmëri." }
+          },
+          {
+            q: { en: "The coupling agent in composite is:", sq: "Agjenti lidhës në kompozit është:" },
+            options: { en: ["Camphorquinone", "Silane", "Benzoyl peroxide", "BHT"], sq: ["Kamforokinoni", "Silani", "Benzoil peroksidit", "BHT"] },
+            correct: 1,
+            explanation: { en: "<strong>Silane</strong> — bonds filler to resin matrix. Without it, composite would be weak.", sq: "<strong>Silani</strong> — lidh mbushësin me matricën rezinore. Pa të, kompoziti do ishte i dobët." }
+          },
+          {
+            q: { en: "Camphorquinone functions as:", sq: "Kamforokinoni funksionon si:" },
+            options: { en: ["Inhibitor", "Photoinitiator (~470nm blue light)", "UV stabilizer", "Coupling agent"], sq: ["Frenues", "Fotoiniciator (~470nm dritë blu)", "Stabilizues UV", "Agjent lidhës"] },
+            correct: 1,
+            explanation: { en: "<strong>Camphorquinone</strong> absorbs blue light at ~468nm, generating free radicals for polymerization.", sq: "<strong>Kamforokinoni</strong> absorbon dritë blu në ~468nm, duke gjeneruar radikale të lira për polimerizim." }
+          },
+          {
+            q: { en: "Nanofilled composites contain:", sq: "Kompozitet nanofilled përmbajnë:" },
+            options: { en: ["Larger filler particles", "Nanoparticles (5-100nm) and nanoclusters", "No resin matrix", "Chemical cure only"], sq: ["Grimca mbushëse më të mëdha", "Nanogrimca (5-100nm) dhe nanoklustere", "Pa matrice rezinore", "Vetëm polimerizim kimik"] },
+            correct: 1,
+            explanation: { en: "<strong>Nanofilled</strong> = excellent polishability + strength. Usable anterior and posterior.", sq: "<strong>Nanofilled</strong> = lustrim i shkëlqyer + forcë. Përdoret anterior dhe posterior." }
+          },
+          {
+            q: { en: "Classification by filler size (largest to smallest):", sq: "Klasifikimi sipas madhësisë së mbushësit (më i madh te më i vogli):" },
+            options: { en: ["Macrofill → Hybrid → Microfill → Nanofill", "Nanofill → Microfill → Hybrid → Macrofill", "Microfill → Macrofill → Hybrid → Nanofill", "Hybrid → Macrofill → Nanofill → Microfill"], sq: ["Makrofill → Hibrid → Mikrofill → Nanofill", "Nanofill → Mikrofill → Hibrid → Makrofill", "Mikrofill → Makrofill → Hibrid → Nanofill", "Hibrid → Makrofill → Nanofill → Mikrofill"] },
+            correct: 0,
+            explanation: { en: "<strong>Macrofill (10-100μm) → Hybrid → Microfill (0.04μm) → Nanofill (5-100nm)</strong>.", sq: "<strong>Makrofill (10-100μm) → Hibrid → Mikrofill (0.04μm) → Nanofill (5-100nm)</strong>." }
+          },
+          {
+            q: { en: "Polymerization shrinkage of composite is:", sq: "Tkurrja e polimerizimit të kompozitit është:" },
+            options: { en: ["0.1-0.5%", "1-5%", "10-15%", "15-20%"], sq: ["0.1-0.5%", "1-5%", "10-15%", "15-20%"] },
+            correct: 1,
+            explanation: { en: "<strong>1-5% volumetric shrinkage</strong>. Managed by incremental layering (2mm layers).", sq: "<strong>1-5% tkurrje vëllimore</strong>. Menaxhohet me shtresim inkremental (shtresa 2mm)." }
+          },
+          {
+            q: { en: "Incremental layering is used to:", sq: "Shtresimi inkremental përdoret për:" },
+            options: { en: ["Improve esthetics only", "Reduce shrinkage stress and improve cure depth", "Save material", "Speed up procedure"], sq: ["Vetëm përmirësim estetike", "Ulje stresit të tkurrjes dhe përmirësim thellësisë së polimerizimit", "Kursim materiali", "Shpejtim procedure"] },
+            correct: 1,
+            explanation: { en: "Max <strong>2mm layers</strong>: reduces C-factor stress + ensures light penetration.", sq: "Maksimum <strong>shtresa 2mm</strong>: ul stresin e C-faktorit + siguron penetrim të dritës." }
+          },
+          {
+            q: { en: "C-factor is the ratio of:", sq: "C-faktori është raporti i:" },
+            options: { en: ["Filler to resin", "Bonded to unbonded surfaces", "Powder to liquid", "Shrinkage to expansion"], sq: ["Mbushësit ndaj rezinës", "Sipërfaqeve të lidhura ndaj të palidhura", "Pluhur ndaj lëng", "Tkurrjes ndaj zgjerimit"] },
+            correct: 1,
+            explanation: { en: "<strong>C-factor = bonded ÷ free surfaces</strong>. Class I = 5 (high stress). Higher C-factor → more debonding risk.", sq: "<strong>C-faktori = sipërfaqe të lidhura ÷ të lira</strong>. Klasa I = 5 (stres i lartë). C-faktor më i lartë → rrezik më i madh debonding." }
+          },
+          {
+            q: { en: "Which filler gives composite radiopacity?", sq: "Cili mbushës i jep kompozitit radiopacitet?" },
+            options: { en: ["Quartz", "Colloidal silica", "Barium glass or strontium glass", "Zirconia only"], sq: ["Kuarci", "Silikë koloidale", "Qelq bariumi ose qelq stronsimi", "Vetëm zirkonia"] },
+            correct: 2,
+            explanation: { en: "<strong>Barium glass, strontium glass, or ytterbium fluoride</strong> for radiopacity.", sq: "<strong>Qelq bariumi, qelq stronsimi, ose fluorid iteribiumi</strong> për radiopacitet." }
+          }
+        ]
+      },
+      {
+        name: { en: "Zinc Oxide Cements", sq: "Çimentot e Oksidit të Zinkut" },
+        questions: [
+          {
+            q: { en: "ZOE cement powder and liquid are:", sq: "Pluhuri dhe lëngu i çimentës ZOE janë:" },
+            options: { en: ["ZnO + polyacrylic acid", "ZnO + eugenol (oil of cloves)", "ZnO + phosphoric acid", "Ca(OH)₂ + water"], sq: ["ZnO + acid poliakrillik", "ZnO + eugenol (vaj karafilash)", "ZnO + acid fosforik", "Ca(OH)₂ + ujë"] },
+            correct: 1,
+            explanation: { en: "<strong>Powder: ZnO. Liquid: Eugenol</strong> (from oil of cloves/oleum caryophylli). Most biocompatible cement.", sq: "<strong>Pluhuri: ZnO. Lëngu: Eugenol</strong> (nga vaji i karafilashit/oleum caryophylli). Çimentoja më biokompatibile." }
+          },
+          {
+            q: { en: "ZOE setting reaction produces:", sq: "Reaksioni i ngurtësimit të ZOE prodhon:" },
+            options: { en: ["Zinc phosphate", "Zinc eugenolate", "Zinc polycarboxylate", "Calcium eugenolate"], sq: ["Fosfat zinku", "Eugenolat zinku", "Polikarboksilat zinku", "Eugenolat kalciumi"] },
+            correct: 1,
+            explanation: { en: "ZnO + Eugenol → <strong>Zinc eugenolate</strong> (chelate compound).", sq: "ZnO + Eugenol → <strong>Eugenolat zinku</strong> (kompound kelat)." }
+          },
+          {
+            q: { en: "ZOE should NOT be used under composite because:", sq: "ZOE NUK duhet përdorur nën kompozit sepse:" },
+            options: { en: ["Too strong", "Eugenol inhibits resin polymerization", "Releases too much fluoride", "Bonds too strongly"], sq: ["Shumë e fortë", "Eugenoli frenon polimerizimin e rezinës", "Liron shumë fluorid", "Lidhet shumë fortë"] },
+            correct: 1,
+            explanation: { en: "<strong>Eugenol inhibits resin polymerization</strong> — results in soft, poorly cured layer.", sq: "<strong>Eugenoli frenon polimerizimin e rezinës</strong> — rezulton shtresë e butë, e polimerizuar keq." }
+          },
+          {
+            q: { en: "Zinc Phosphate cement powder contains:", sq: "Pluhuri i çimentës Fosfat Zinku përmban:" },
+            options: { en: ["ZnO only", "ZnO (~90%) + MgO (~10%)", "Calcium fluoroaluminosilicate glass", "Silver-tin alloy"], sq: ["Vetëm ZnO", "ZnO (~90%) + MgO (~10%)", "Qelq kalcium-fluoroaluminosilikat", "Aliazh argjend-kallaj"] },
+            correct: 1,
+            explanation: { en: "<strong>ZnO (~90%) + MgO (~10%)</strong>. Liquid: phosphoric acid (~67%) buffered with Al and Zn.", sq: "<strong>ZnO (~90%) + MgO (~10%)</strong>. Lëngu: acid fosforik (~67%) i buferuar me Al dhe Zn." }
+          },
+          {
+            q: { en: "Zinc Phosphate cement liquid is:", sq: "Lëngu i çimentës Fosfat Zinku është:" },
+            options: { en: ["Eugenol", "Polyacrylic acid", "Phosphoric acid (~67%)", "Water"], sq: ["Eugenol", "Acid poliakrillik", "Acid fosforik (~67%)", "Ujë"] },
+            correct: 2,
+            explanation: { en: "<strong>Phosphoric acid (~67%)</strong> buffered with aluminum and zinc phosphate.", sq: "<strong>Acidi fosforik (~67%)</strong> i buferuar me fosfat alumini dhe zinku." }
+          },
+          {
+            q: { en: "Zinc Phosphate requires a cooled glass slab because:", sq: "Fosfati i Zinkut kërkon pllakë qelqi të ftohur sepse:" },
+            options: { en: ["Improve esthetics", "Slow exothermic reaction, extend working time", "Increase film thickness", "Reduce fluoride release"], sq: ["Përmirëson estetikën", "Ngadalëson reaksionin ekzotermik, zgjat kohën e punës", "Rrit trashësinë e filmit", "Ul lirimin e fluoridit"] },
+            correct: 1,
+            explanation: { en: "<strong>Highly exothermic</strong>. Cooled slab slows reaction, allows more powder = stronger cement.", sq: "<strong>Shumë ekzotermike</strong>. Pllaka e ftohur ngadalëson reaksionin, lejon më shumë pluhur = çimento më e fortë." }
+          },
+          {
+            q: { en: "Zinc Polycarboxylate cement liquid contains:", sq: "Lëngu i çimentës Polikarboksilat Zinku përmban:" },
+            options: { en: ["Phosphoric acid", "Eugenol", "Polyacrylic acid (37-40%)", "HEMA"], sq: ["Acid fosforik", "Eugenol", "Acid poliakrillik (37-40%)", "HEMA"] },
+            correct: 2,
+            explanation: { en: "<strong>Polyacrylic acid (37-40%)</strong>. First cement to chemically bond to tooth (Smith, 1968).", sq: "<strong>Acid poliakrillik (37-40%)</strong>. Çimentoja e parë me lidhje kimike me dhëmbin (Smith, 1968)." }
+          },
+          {
+            q: { en: "Which zinc oxide cement has a sedative effect on the pulp?", sq: "Cila çimento e oksidit të zinkut ka efekt sedativ në pulpë?" },
+            options: { en: ["Zinc phosphate", "Zinc polycarboxylate", "ZOE", "All equally"], sq: ["Fosfat zinku", "Polikarboksilat zinku", "ZOE", "Të gjitha njësoj"] },
+            correct: 2,
+            explanation: { en: "<strong>ZOE</strong> — best biocompatibility, sedative effect from eugenol's anti-inflammatory properties.", sq: "<strong>ZOE</strong> — biokompatibiliteti më i mirë, efekt sedativ nga vetitë anti-inflamatore të eugenolit." }
+          },
+          {
+            q: { en: "IRM (Intermediate Restorative Material) is a reinforced form of:", sq: "IRM është formë e përforcuar e:" },
+            options: { en: ["Zinc phosphate", "ZOE", "GIC", "Composite"], sq: ["Fosfatit të zinkut", "ZOE", "GIC", "Kompozitit"] },
+            correct: 1,
+            explanation: { en: "<strong>IRM = reinforced ZOE</strong> with PMMA fillers and EBA replacing some eugenol.", sq: "<strong>IRM = ZOE e përforcuar</strong> me mbushëse PMMA dhe EBA duke zëvendësuar disa eugenol." }
+          },
+          {
+            q: { en: "Oleum Caryophylli (oil of cloves) is the source of:", sq: "Oleum Caryophylli (vaji i karafilashit) është burimi i:" },
+            options: { en: ["Phosphoric acid", "Eugenol", "Polyacrylic acid", "Zinc oxide"], sq: ["Acidit fosforik", "Eugenolit", "Acidit poliakrillik", "Oksidit të zinkut"] },
+            correct: 1,
+            explanation: { en: "<strong>Eugenol</strong> — constitutes 85-90% of clove oil. Analgesic, anti-inflammatory, antibacterial.", sq: "<strong>Eugenoli</strong> — përbën 85-90% të vajit të karafilashit. Analgjezik, anti-inflamator, antibakterial." }
+          }
+        ]
+      },
+      {
+        name: { en: "Bonding Agents (Generations)", sq: "Agjentët Lidhës (Gjeneratat)" },
+        questions: [
+          {
+            q: { en: "Acid etching of enamel was introduced by:", sq: "Gdhendja acide e smaltit u prezantua nga:" },
+            options: { en: ["G.V. Black", "Michael Buonocore (1955)", "Bowen (1962)", "Smith (1968)"], sq: ["G.V. Black", "Michael Buonocore (1955)", "Bowen (1962)", "Smith (1968)"] },
+            correct: 1,
+            explanation: { en: "<strong>Buonocore 1955</strong> — phosphoric acid creates microporosities for resin tags.", sq: "<strong>Buonocore 1955</strong> — acidi fosforik krijon mikroporozitete për resin tags." }
+          },
+          {
+            q: { en: "4th generation bonding agents have how many steps?", sq: "Agjentët lidhës të gjeneratës 4 kanë sa hapa?" },
+            options: { en: ["1 step", "2 steps", "3 steps (etch + prime + bond)", "4 steps"], sq: ["1 hap", "2 hapa", "3 hapa (gdhendë + prime + bond)", "4 hapa"] },
+            correct: 2,
+            explanation: { en: "<strong>4th gen = 3 steps</strong>: etch, primer, adhesive. Gold standard for bond strength.", sq: "<strong>Gjenerata 4 = 3 hapa</strong>: gdhendje, primer, adeziv. Standardi i artë për forcën lidhëse." }
+          },
+          {
+            q: { en: "5th generation simplified by:", sq: "Gjenerata 5 thjeshtoi duke:" },
+            options: { en: ["Eliminating etching", "Combining primer + bond in one bottle", "All three in one", "Using GIC instead"], sq: ["Eliminuar gdhendjen", "Kombinuar primer + bond në një shishe", "Të tria në një", "Përdorur GIC"] },
+            correct: 1,
+            explanation: { en: "<strong>5th gen = 2 steps</strong>: separate etch + combined primer/adhesive.", sq: "<strong>Gjenerata 5 = 2 hapa</strong>: gdhendja veçmas + primer/adeziv i kombinuar." }
+          },
+          {
+            q: { en: "Self-etch bonding agents (6th/7th gen) differ in that:", sq: "Agjentët lidhës self-etch (gjenerata 6/7) dallojnë sepse:" },
+            options: { en: ["Use stronger acid", "No separate etching — acidic primer etches and primes", "Only work on enamel", "Require 60s light curing"], sq: ["Përdorin acid më të fortë", "Pa gdhendja veçmas — primeri acidik gdhend dhe primon njëkohësisht", "Punojnë vetëm në smalt", "Kërkojnë polimerizim 60s"] },
+            correct: 1,
+            explanation: { en: "<strong>Self-etch</strong> contains acidic monomers (e.g., 10-MDP) that etch+prime simultaneously.", sq: "<strong>Self-etch</strong> përmban monomerë acidikë (p.sh., 10-MDP) që gdhendnin+primojnë njëkohësisht." }
+          },
+          {
+            q: { en: "7th generation combines which steps?", sq: "Gjenerata 7 kombinon cilat hapa?" },
+            options: { en: ["Etch + prime only", "Prime + bond only", "Etch + prime + bond in ONE step", "None — 4 separate steps"], sq: ["Vetëm gdhendë + prime", "Vetëm prime + bond", "Gdhendë + prime + bond në NJË hap", "Asnjë — 4 hapa të veçuara"] },
+            correct: 2,
+            explanation: { en: "<strong>7th gen = all-in-one</strong>. Most convenient but controversial — higher water sorption, lower longevity.", sq: "<strong>Gjenerata 7 = gjithçka-në-një</strong>. Më e përshtatshme por kontroverse — absorbim më i lartë uji, jetëgjatësi më e ulët." }
+          },
+          {
+            q: { en: "The hybrid layer was described by:", sq: "Shtresa hibride u përshkrua nga:" },
+            options: { en: ["Buonocore", "Nakabayashi (1982)", "Bowen", "G.V. Black"], sq: ["Buonocore", "Nakabayashi (1982)", "Bowen", "G.V. Black"] },
+            correct: 1,
+            explanation: { en: "<strong>Nakabayashi 1982</strong> — resin-infiltrated demineralized dentin collagen. Basis of dentin bonding.", sq: "<strong>Nakabayashi 1982</strong> — kolagjen dentine e demineralizuar e infiltruar me rezinë. Baza e lidhjes me dentinë." }
+          },
+          {
+            q: { en: "10-MDP is found in:", sq: "10-MDP gjendet në:" },
+            options: { en: ["4th gen total-etch", "Self-etch adhesives", "ZOE cement", "Glass ionomer"], sq: ["Gjeneratën 4 total-etch", "Adezivët self-etch", "Çimenton ZOE", "Glas ionomer"] },
+            correct: 1,
+            explanation: { en: "<strong>10-MDP</strong> chemically bonds to hydroxyapatite. Found in Clearfil SE Bond, Scotchbond Universal.", sq: "<strong>10-MDP</strong> lidhet kimikisht me hidroksiapatitin. Gjendet në Clearfil SE Bond, Scotchbond Universal." }
+          },
+          {
+            q: { en: "Wet bonding is important for:", sq: "Wet bonding është i rëndësishëm për:" },
+            options: { en: ["Enamel bonding", "Dentin bonding with total-etch", "Self-etch systems", "GIC bonding"], sq: ["Lidhjen me smalt", "Lidhjen me dentinë me total-etch", "Sistemet self-etch", "Lidhjen me GIC"] },
+            correct: 1,
+            explanation: { en: "<strong>Wet bonding</strong> — keep dentin moist after etching so collagen doesn't collapse.", sq: "<strong>Wet bonding</strong> — mbaje dentinën të lagët pas gdhendjes që kolagjeni të mos kollapsohet." }
+          },
+          {
+            q: { en: "Universal adhesives can be used in:", sq: "Adezivët universal mund të përdoren në:" },
+            options: { en: ["Total-etch only", "Self-etch only", "Both total-etch and self-etch modes", "Only with amalgam"], sq: ["Vetëm total-etch", "Vetëm self-etch", "Të dy mënyrat total-etch dhe self-etch", "Vetëm me amalgam"] },
+            correct: 2,
+            explanation: { en: "<strong>Universal adhesives</strong> work in all modes. Most clinicians use selective etch (phosphoric on enamel only).", sq: "<strong>Adezivët universal</strong> punojnë në të gjitha mënyrat. Shumica e klinicistëve përdorin gdhendja selektive (fosforik vetëm në smalt)." }
+          },
+          {
+            q: { en: "Phosphoric acid concentration for enamel etching:", sq: "Përqendrimi i acidit fosforik për gdhendjen e smaltit:" },
+            options: { en: ["10%", "20%", "37% (30-40% range)", "50%"], sq: ["10%", "20%", "37% (rangu 30-40%)", "50%"] },
+            correct: 2,
+            explanation: { en: "<strong>37%</strong> for 15-30s on enamel. Etched enamel appears frosty white.", sq: "<strong>37%</strong> për 15-30s në smalt. Smalti i gdhendur duket i bardhë si brymë." }
+          }
+        ]
+      },
+      {
+        name: { en: "Calcium Hydroxide & Liners", sq: "Hidroksidi i Kalciumit dhe Liner-ët" },
+        questions: [
+          {
+            q: { en: "Calcium hydroxide is used primarily as:", sq: "Hidroksidi i kalciumit përdoret kryesisht si:" },
+            options: { en: ["Permanent restoration", "Pulp capping agent and liner", "Luting cement", "Impression material"], sq: ["Restaurim i përhershëm", "Agjent për mbulim pulpe dhe liner", "Çimento çimentuese", "Material për impresion"] },
+            correct: 1,
+            explanation: { en: "<strong>Ca(OH)₂</strong> for direct/indirect pulp capping. High pH (~12.5) stimulates reparative dentin.", sq: "<strong>Ca(OH)₂</strong> për mbulim direkt/indirekt të pulpës. pH i lartë (~12.5) stimulon dentinë reparative." }
+          },
+          {
+            q: { en: "The high pH (~12.5) of Ca(OH)₂ is important because:", sq: "pH i lartë (~12.5) i Ca(OH)₂ është i rëndësishëm sepse:" },
+            options: { en: ["Etches enamel", "Kills bacteria and stimulates reparative dentin", "Prevents sensitivity", "Increases restoration strength"], sq: ["Gdhend smaltin", "Vret bakteret dhe stimulon dentinën reparative", "Parandalon ndjeshmërinë", "Rrit forcën e restaurimit"] },
+            correct: 1,
+            explanation: { en: "pH 12.5 = <strong>antibacterial</strong> + stimulates <strong>reparative dentin</strong> formation by odontoblast-like cells.", sq: "pH 12.5 = <strong>antibakterial</strong> + stimulon formimin e <strong>dentinës reparative</strong> nga qelizat odontoblast-like." }
+          },
+          {
+            q: { en: "Cavity varnish under amalgam was used to:", sq: "Vernikimi i kavitetit nën amalgam përdorej për:" },
+            options: { en: ["Bond amalgam", "Seal tubules and reduce microleakage", "Strengthen amalgam", "Whiten tooth"], sq: ["Lidhje amalgami", "Mbyllje tubulash dhe ulje mikroderdhjes", "Përforcim amalgami", "Zbardhje dhëmbi"] },
+            correct: 1,
+            explanation: { en: "<strong>Seal dentinal tubules, reduce microleakage</strong>. Never under composite (interferes with bonding).", sq: "<strong>Mbyll tubulat dentinore, ul mikroderdhjen</strong>. Kurrë nën kompozit (ndërhyn në lidhje)." }
+          },
+          {
+            q: { en: "Which material has largely replaced Ca(OH)₂ for pulp capping?", sq: "Cili material ka zëvendësuar kryesisht Ca(OH)₂ për mbulimin e pulpës?" },
+            options: { en: ["ZOE", "MTA (Mineral Trioxide Aggregate)", "Composite", "Zinc phosphate"], sq: ["ZOE", "MTA (Mineral Trioxide Aggregate)", "Kompoziti", "Fosfat zinku"] },
+            correct: 1,
+            explanation: { en: "<strong>MTA</strong> and bioceramics (Biodentine) — better seal, higher quality dentin bridge.", sq: "<strong>MTA</strong> dhe bioqeramikat (Biodentine) — mbyllje më e mirë, urë dentine me cilësi më të lartë." }
+          },
+          {
+            q: { en: "Light-cured Ca(OH)₂ liners set by:", sq: "Liner-ët Ca(OH)₂ të polimerizuara me dritë ngurtësohen me:" },
+            options: { en: ["Acid-base reaction", "Light-activated polymerization", "Chelation", "Condensation"], sq: ["Reaksion acid-bazë", "Polimerizim i aktivizuar me dritë", "Kelacion", "Kondensim"] },
+            correct: 1,
+            explanation: { en: "Light-cured liners set by <strong>photopolymerization</strong>. Chemical Dycal sets by chelation.", sq: "Liner-ët me dritë ngurtësohen me <strong>fotopolimerizim</strong>. Dycal kimik ngurtësohet me kelacion." }
+          }
+        ]
+      }
+    ]
+  }
+];
+
+// ===== STATE =====
+let lang = localStorage.getItem('dentprep_lang') || null;
+let stats = JSON.parse(localStorage.getItem('dentprep_stats') || '{"answered":0,"correct":0,"streak":0,"best_streak":0,"topicScores":{}}');
+let currentSubject = null;
+let currentTopic = null;
+let currentQuestions = [];
+let currentIdx = 0;
+let quizCorrect = 0;
+let answered = false;
+
+// ===== HELPERS =====
+const t = (obj) => typeof obj === 'object' ? (obj[lang] || obj.en) : obj;
+const ui = (key) => UI[lang]?.[key] || UI.en[key];
+
+// ===== LANGUAGE =====
+function setLang(l) {
+  lang = l;
+  localStorage.setItem('dentprep_lang', l);
+  document.getElementById('lang-switch-btn').textContent = l === 'sq' ? '🇦🇱 SQ' : '🇬🇧 EN';
+  showScreen('home');
+}
+
+// ===== NAVIGATION =====
+function showScreen(id) {
+  if (id !== 'lang-select' && !lang) { id = 'lang-select'; }
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (id === 'home') renderHome();
+}
+
+// ===== HOME =====
+function renderHome() {
+  document.getElementById('home-subtitle').textContent = ui('subtitle');
+  document.getElementById('lbl-answered').textContent = ui('answered');
+  document.getElementById('lbl-accuracy').textContent = ui('accuracy');
+  document.getElementById('lbl-streak').textContent = ui('streak');
+  document.getElementById('lbl-subjects').textContent = ui('subjects');
+  document.getElementById('stat-answered').textContent = stats.answered;
+  document.getElementById('stat-accuracy').textContent = stats.answered ? Math.round(stats.correct/stats.answered*100)+'%' : '0%';
+  document.getElementById('stat-streak').textContent = stats.best_streak;
+
+  const grid = document.getElementById('subject-grid');
+  grid.innerHTML = '';
+  SUBJECTS.forEach(sub => {
+    const totalQ = sub.topics.reduce((a,tp) => a + tp.questions.length, 0);
+    const answeredQ = sub.topics.reduce((a,tp) => {
+      const key = sub.id + '_' + (tp.name.en || tp.name);
+      return a + (stats.topicScores[key]?.answered || 0);
+    }, 0);
+    const pct = totalQ ? Math.min(100, Math.round(answeredQ/totalQ*100)) : 0;
+    const card = document.createElement('div');
+    card.className = 'subject-card';
+    card.innerHTML = `<div class="emoji">${sub.emoji}</div><div class="name">${t(sub.name)}</div><div class="count">${totalQ} ${ui('questions')}</div><div class="progress-bar" style="width:${pct}%"></div>`;
+    card.onclick = () => openSubject(sub);
+    grid.appendChild(card);
+  });
+}
+
+// ===== TOPICS =====
+function openSubject(sub) {
+  currentSubject = sub;
+  document.getElementById('back-topics').textContent = ui('back');
+  document.getElementById('topic-subject-name').textContent = sub.emoji + ' ' + t(sub.name);
+  document.getElementById('topic-subject-desc').textContent = t(sub.desc);
+  const list = document.getElementById('topic-list');
+  list.innerHTML = '';
+  sub.topics.forEach(topic => {
+    const key = sub.id + '_' + (topic.name.en || topic.name);
+    const sc = stats.topicScores[key];
+    const card = document.createElement('div');
+    card.className = 'topic-card';
+    card.innerHTML = `<div class="left"><div class="name">${t(topic.name)}</div><div class="meta">${topic.questions.length} ${ui('questions')}</div></div><div class="right">${sc ? `<span class="score">${Math.round(sc.correct/sc.answered*100)}%</span>` : ''}<span class="arrow">›</span></div>`;
+    card.onclick = () => startQuiz(topic);
+    list.appendChild(card);
+  });
+  showScreen('topics');
+}
+
+// ===== QUIZ =====
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length-1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; }
+  return a;
+}
+
+function startQuiz(topic) {
+  currentTopic = topic;
+  currentQuestions = shuffle(topic.questions);
+  currentIdx = 0;
+  quizCorrect = 0;
+  showScreen('quiz');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = currentQuestions[currentIdx];
+  answered = false;
+  document.getElementById('quit-btn').textContent = ui('quit');
+  document.getElementById('quiz-counter').textContent = `${currentIdx+1} / ${currentQuestions.length}`;
+  document.getElementById('quiz-progress-fill').style.width = `${(currentIdx/currentQuestions.length)*100}%`;
+  document.getElementById('question-text').textContent = t(q.q);
+  document.getElementById('explanation').classList.remove('show');
+  document.getElementById('next-btn').classList.remove('show');
+  const opts = document.getElementById('options');
+  opts.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  const options = t(q.options);
+  options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="letter">${letters[i]}</span><span>${opt}</span>`;
+    btn.onclick = () => selectAnswer(i);
+    opts.appendChild(btn);
+  });
+}
+
+function selectAnswer(idx) {
+  if (answered) return;
+  answered = true;
+  const q = currentQuestions[currentIdx];
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach((btn, i) => {
+    btn.classList.add('disabled');
+    if (i === q.correct) btn.classList.add('correct');
+    if (i === idx && idx !== q.correct) btn.classList.add('wrong');
+  });
+  if (idx === q.correct) { quizCorrect++; stats.correct++; stats.streak++; if (stats.streak > stats.best_streak) stats.best_streak = stats.streak; } else { stats.streak = 0; }
+  stats.answered++;
+  const expl = document.getElementById('explanation');
+  expl.innerHTML = t(q.explanation);
+  expl.classList.add('show');
+  const nb = document.getElementById('next-btn');
+  nb.classList.add('show');
+  nb.textContent = currentIdx < currentQuestions.length-1 ? ui('next') : ui('seeResults');
+  saveStats();
+}
+
+function nextQuestion() {
+  currentIdx++;
+  if (currentIdx >= currentQuestions.length) showResults();
+  else renderQuestion();
+}
+
+// ===== RESULTS =====
+function showResults() {
+  const pct = Math.round(quizCorrect/currentQuestions.length*100);
+  const circle = document.getElementById('results-circle');
+  circle.className = 'results-circle ' + (pct >= 80 ? 'good' : pct >= 50 ? 'ok' : 'bad');
+  document.getElementById('results-pct').textContent = pct + '%';
+  document.getElementById('results-of').textContent = `${quizCorrect}/${currentQuestions.length}`;
+  const r = ui('results');
+  const msgs = pct >= 90 ? r[0] : pct >= 70 ? r[1] : pct >= 50 ? r[2] : r[3];
+  document.getElementById('results-msg').textContent = msgs[0];
+  document.getElementById('results-sub').textContent = msgs[1];
+  document.getElementById('btn-retry').textContent = ui('retry');
+  document.getElementById('btn-back-home').textContent = ui('backHome');
+  const key = currentSubject.id + '_' + (currentTopic.name.en || currentTopic.name);
+  stats.topicScores[key] = { answered: currentQuestions.length, correct: quizCorrect };
+  saveStats();
+  document.getElementById('quiz-progress-fill').style.width = '100%';
+  showScreen('results');
+}
+
+function retryQuiz() { startQuiz(currentTopic); }
+function saveStats() { localStorage.setItem('dentprep_stats', JSON.stringify(stats)); }
+
+// ===== INIT =====
+if (lang) { document.getElementById('lang-switch-btn').textContent = lang === 'sq' ? '🇦🇱 SQ' : '🇬🇧 EN'; showScreen('home'); }
+</script>
+</body>
+</html>
